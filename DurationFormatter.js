@@ -1,67 +1,36 @@
-const ONE_YEAR = 365 * 24 * 60 * 60;
-const ONE_DAY = 24 * 60 * 60;
-const ONE_HOUR = 60 * 60;
-const ONE_MINUTE = 60;
+const formatDuration = (() => {
+  const ONE_YEAR = 365 * 24 * 60 * 60;
+  const ONE_DAY = 24 * 60 * 60;
+  const ONE_HOUR = 60 * 60;
+  const ONE_MINUTE = 60;
+  return (timeSeconds) => {
+    const timeArray = [
+      { type: 'year', second: ONE_YEAR },
+      { type: 'day', second: ONE_DAY },
+      { type: 'hour', second: ONE_HOUR },
+      { type: 'minute', second: ONE_MINUTE },
+      { type: 'second', second: 1 },
+    ];
 
-console.log(ONE_YEAR, '  ', ONE_DAY, '  ', ONE_HOUR);
-function formatDuration(timeSeconds) {
-  let year = 0;
-  let day = 0;
-  let hour = 0;
-  let minute = 0;
-  let second = 0;
+    const result = timeArray
+      .map(({ type, second }) => {
+        const stamp = timeSeconds;
+        timeSeconds = stamp % second;
+        return { type, cnt: Math.floor(stamp / second) };
+      })
+      .filter(({ cnt }) => !!cnt)
+      .map(({ type, cnt }) => (cnt > 1 ? `${cnt} ${type}s` : `${cnt} ${type}`));
 
-  year = Math.floor(timeSeconds / ONE_YEAR);
-  timeSeconds = timeSeconds % ONE_YEAR;
-
-  day = Math.floor(timeSeconds / ONE_DAY);
-  timeSeconds = timeSeconds % ONE_DAY;
-
-  hour = Math.floor(timeSeconds / ONE_HOUR);
-  timeSeconds = timeSeconds % ONE_HOUR;
-
-  minute = Math.floor(timeSeconds / ONE_MINUTE);
-  timeSeconds = timeSeconds % ONE_MINUTE;
-
-  second = timeSeconds;
-
-  let str = '';
-
-  if (!(year === 0)) {
-    str += year === 1 ? `${year} year` : `${year} years`;
-  }
-  if (!(day === 0)) {
-    if (!(str === '')) {
-      str += ', ';
+    console.log(result);
+    if (result.length <= 1) {
+      return result.join(' and ');
+    } else {
+      return (
+        result.slice(0, result.length - 1).join(', ') +
+        ' and ' +
+        result[result.length - 1]
+      );
     }
-    str += day === 1 ? `${day} day` : `${day} days`;
-  }
-  if (!(hour === 0)) {
-    if (!(str === '')) {
-      str += ', ';
-    }
-    str += hour === 1 ? `${hour} hour` : `${hour} hours`;
-  }
-  if (!(minute === 0)) {
-    if (!(str === '')) {
-      str += ', ';
-    }
-    str += minute === 1 ? `${minute} minute` : `${minute} minutes`;
-  }
-  if (!(second === 0)) {
-    if (!(minute === 0)) {
-      str += ' and ';
-    } else if (!(str === '')) {
-      str += ', ';
-    }
-    str += second === 1 ? `${second} second` : `${second} seconds`;
-  }
-  console.log(year, day, minute, second);
-
-  return str;
-}
-console.log(
-  formatDuration(
-    365 * 24 * 60 * 60 * 2 + 60 * 60 * 3 + 2 + 60 * 3 + 60 * 60 * 24 * 3
-  )
-);
+  };
+})();
+console.log(formatDuration(365 * 24 * 60 * 60 * 2 + 60 * 3 + 60 * 60 * 24 * 1));
